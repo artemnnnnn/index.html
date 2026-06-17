@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интерактивный Экономический Тренажер</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .page { display: none; }
+        .active { display: block; }
+        
+        /* 3D-переворот для карточек */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .card-inner {
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .flipped {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            backface-visibility: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 font-sans antialiased">
+
+    <!-- НАВИГАЦИОННАЯ ПАНЕЛЬ -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
+            <span onclick="showPage('home')" class="font-extrabold text-xl text-indigo-600 cursor-pointer flex items-center gap-2">
+                <span>🎓</span> ЭконоМикс
+            </span>
+            <div class="flex gap-2">
+                <button onclick="showPage('home')" class="px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-indigo-600 transition">Главная</button>
+                <button onclick="showPage('guide')" class="px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-indigo-600 transition">Теория</button>
+                <button onclick="showPage('cards')" class="px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-indigo-600 transition">Карточки</button>
+                <button onclick="showPage('quiz')" class="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-sm font-bold hover:bg-indigo-700 transition">Тест</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ГЛАВНАЯ СТРАНИЦА -->
+    <div id="home" class="page active max-w-4xl mx-auto px-4 py-12">
+        <div class="text-center max-w-2xl mx-auto mb-12">
+            <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-4">
+                Твой личный помощник по <span class="text-indigo-600">Экономике</span>
+            </h1>
+            <p class="text-lg text-slate-600">Изучи структурированную теорию, закрепи понятия на карточках и сдай тест на отлично с первой попытки!</p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6">
+            <!-- Блок Теории -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-2xl font-bold mb-4">📚</div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-2">1. Изучить теорию</h3>
+                    <p class="text-slate-600 text-sm mb-6">12 структурированных разделов, каждый из которых привязан к конкретному вопросу теста для максимального понимания.</p>
+                </div>
+                <button onclick="showPage('guide')" class="w-full bg-emerald-600 text-white py-2.5 rounded-xl font-bold hover:bg-emerald-700 transition">Начать обучение</button>
+            </div>
+
+            <!-- Блок Карточек -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center text-2xl font-bold mb-4">🎴</div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-2">2. Умные карточки</h3>
+                    <p class="text-slate-600 text-sm mb-6">Интерактивный набор из 12 двусторонних карточек. Поможет быстро и наглядно запомнить все сложные формулировки.</p>
+                </div>
+                <button onclick="showPage('cards')" class="w-full bg-amber-500 text-white py-2.5 rounded-xl font-bold hover:bg-amber-600 transition font-bold">Учить термины</button>
+            </div>
+
+            <!-- Блок Теста -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-2xl font-bold mb-4">📝</div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-2">3. Пройти тест</h3>
+                    <p class="text-slate-600 text-sm mb-6">12 вопросов по 4 варианта ответа. С возможностью исправлять ошибки прямо во время прохождения и читать подсказки.</p>
+                </div>
+                <button onclick="showPage('quiz')" class="w-full bg-indigo-600 text-white py-2.5 rounded-xl font-bold hover:bg-indigo-700 transition">Запустить тест</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- УЧЕБНЫЙ МАТЕРИАЛ -->
+    <div id="guide" class="page max-w-3xl mx-auto px-4 py-8">
+        <div class="mb-6 flex items-center justify-between">
+            <button onclick="showPage('home')" class="text-sm font-semibold text-slate-500 hover:text-slate-800 transition">← На главную</button>
+            <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full">12 разделов теории</span>
+        </div>
+        
+        <h2 class="text-3xl font-black text-slate-950 mb-8">Полный учебный материал по экономике</h2>
+        
+        <div id="guide-list" class="space-y-6">
+            <!-- Разделы генерируются через JS для полной синхронизации -->
+        </div>
+    </div>
+
+    <!-- КАРТОЧКИ ДЛЯ ЗАПОМИНАНИЯ -->
+    <div id="cards" class="page max-w-4xl mx-auto px-4 py-8">
+        <div class="mb-6 flex items-center justify-between">
+            <button onclick="showPage('home')" class="text-sm font-semibold text-slate-500 hover:text-slate-800 transition">← На главную</button>
+            <span class="text-xs font-bold bg-amber-100 text-amber-800 px-3 py-1 rounded-full">12 интерактивных карточек</span>
+        </div>
+
+        <h2 class="text-3xl font-black text-slate-950 mb-2">Карточки для запоминания</h2>
+        <p class="text-slate-600 mb-8">Нажмите на карточку, чтобы перевернуть ее и увидеть определение.</p>
+
+        <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-6" id="cards-grid">
+            <!-- Карточки генерируются скриптом -->
+        </div>
+    </div>
+
+    <!-- ТЕСТ -->
+    <div id="quiz" class="page max-w-3xl mx-auto px-4 py-8">
+        <div class="mb-6 flex items-center justify-between">
+            <button onclick="showPage('home')" class="text-sm font-semibold text-slate-500 hover:text-slate-800 transition">← На главную</button>
+            <span class="text-xs font-bold bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full" id="score-counter">Пройдено: 0 / 12</span>
+        </div>
+
+        <div class="mb-6">
+            <h2 class="text-3xl font-black text-slate-950 mb-2">Проверка знаний</h2>
+            <p class="text-slate-600 text-sm">Вы можете выбирать ответы до тех пор, пока не найдете верный. Ошибочные варианты покажут подсказку.</p>
+        </div>
+
+        <div id="quiz-container" class="space-y-6">
+            <!-- Вопросы генерируются скриптом -->
+        </div>
+
+        <div id="quiz-footer" class="mt-8 text-center hidden">
+            <div class="bg-indigo-50 border border-indigo-200 p-6 rounded-2xl mb-4">
+                <h4 class="text-xl font-bold text-indigo-900 mb-2">🎉 Тест успешно пройден!</h4>
+                <p class="text-slate-700 text-sm mb-4">Вы нашли верные ответы на все вопросы. Хотите перемешать вопросы и попробовать заново?</p>
+                <button onclick="restartQuiz()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-bold transition">Пройти заново</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Скрипты приложения -->
+    <script>
+        // База данных приложения (все 12 вопросов из картинок, 4 варианта ответа, детальная теория и карточки)
+        const database = [
+            {
+                id: 1,
+                q: "Какая экономическая система в наибольшей степени основана на свободном предпринимательстве и конкуренции?",
+                options: [
+                    "Командно-административная",
+                    "Рыночная",
+                    "Традиционная",
+                    "Смешанная"
+                ],
+                correctIndex: 1, // "Рыночная"
+                guideTitle: "К заданию 1. Типы экономических систем",
+                guideText: "Экономическая система определяет, как общество решает проблемы ограниченности ресурсов. <b>Рыночная система</b> базируется на частной собственности, свободе предпринимательского выбора, личной выгоде и механизме свободной конкуренции. В отличие от командной (где все решает государство) и традиционной (где доминируют обычаи), в рыночной экономике цены формируются под влиянием спроса и предложения.",
+                cardTerm: "Рыночная система",
+                cardDef: "Экономическая система, основанная на частной собственности, свободе предпринимательства и конкуренции.",
+                explain: "Именно рыночная система максимально задействует механизмы частной инициативы и свободной конкуренции.",
+                hint: "В командной экономике все диктует государство, в традиционной — обычаи. Ищите систему свободы."
+            },
+            {
+                id: 2,
+                q: "Как называется ценность лучшего из упущенных вариантов при выборе?",
+                options: [
+                    "Потребительская полезность",
+                    "Номинальный доход",
+                    "Альтернативные издержки",
+                    "Прибавочная стоимость"
+                ],
+                correctIndex: 2, // "Альтернативные издержки"
+                guideTitle: "К заданию 2. Альтернативная стоимость (издержки)",
+                guideText: "Ресурсы всегда ограничены, поэтому любой выбор означает отказ от других возможностей. <b>Альтернативные издержки (или издержки упущенных возможностей)</b> — это ценность самого лучшего из тех вариантов, от которых пришлось отказаться в пользу сделанного выбора.",
+                cardTerm: "Альтернативные издержки",
+                cardDef: "Ценность лучшего из упущенных вариантов, от которого пришлось отказаться при совершении выбора.",
+                explain: "Альтернативные издержки измеряют упущенную выгоду при принятии любого экономического решения.",
+                hint: "Это не реальные деньги, которые вы заплатили, а то лучшее решение, которым вы пожертвовали."
+            },
+            {
+                id: 3,
+                q: "Что из перечисленного включается в расчёт ВВП?",
+                options: [
+                    "Стоимость конечного продукта",
+                    "Перепродажа подержанного автомобиля",
+                    "Покупка акций",
+                    "Пенсия"
+                ],
+                correctIndex: 0, // "Стоимость конечного продукта"
+                guideTitle: "К заданию 3. Расчёт ВВП",
+                guideText: "<b>ВВП (Валовой внутренний продукт)</b> учитывает рыночную стоимость только <b>конечных товаров и услуг</b>, произведённых внутри страны за год. В ВВП НЕ включаются: промежуточные товары (чтобы избежать двойного счёта), финансовые сделки (покупка акций, облигаций), трансферты (пенсии, пособия) и сделки с подержанными вещами, так как они уже были учтены ранее при их первом производстве.",
+                cardTerm: "ВВП",
+                cardDef: "Рыночная стоимость всех конечных товаров и услуг, произведенных на территории страны за определенный период.",
+                explain: "ВВП включает только конечные продукты. Акции — финансовая сделка, пенсия — трансферт, а перепродажа авто не создает новый продукт.",
+                hint: "Исключите финансовые переводы (пенсии, ценные бумаги) и старые товары. Останется только созданный заново продукт."
+            },
+            {
+                id: 4,
+                q: "Какой термин Адам Смит использовал для описания механизма саморегулирования рынка?",
+                options: [
+                    "Невидимая рука рынка",
+                    "Государственный план",
+                    "Прибавочная стоимость",
+                    "Эффект мультипликатора"
+                ],
+                correctIndex: 0, // "Невидимая рука рынка"
+                guideTitle: "К заданию 4. Механизм саморегулирования рынка",
+                guideText: "Адам Смит в своей книге 'Богатство народов' описал, как эгоистические стремления каждого человека получить максимальную выгоду удивительным образом приводят к общему экономическому успеху и благосостоянию всего общества. Этот невидимый координирующий механизм цен и конкуренции он назвал <b>'невидимой рукой рынка'</b>.",
+                cardTerm: "Невидимая рука рынка",
+                cardDef: "Образное выражение Адама Смита, обозначающее автоматический механизм саморегулирования рыночной экономики.",
+                explain: "Именно 'невидимая рука' направляет частные эгоистические интересы людей на пользу всего общества.",
+                hint: "Это классическая метафора Адама Смита о рынке без государственного планирования."
+            },
+            {
+                id: 5,
+                q: "Что происходит с долей расходов на питание по закону Энгеля при росте доходов?",
+                options: [
+                    "Уменьшается",
+                    "Сначала растёт, потом падает",
+                    "Не меняется",
+                    "Растёт"
+                ],
+                correctIndex: 0, // "Уменьшается"
+                guideTitle: "К заданию 5. Закон Энгеля",
+                guideText: "Немецкий статистик Эрнст Энгель выявил важную закономерность: по мере роста доходов отдельного человека или семьи <b>доля их расходов на питание снижается</b>, доля расходов на одежду и жильё остаётся примерно одинаковой, а доля расходов на культурные, образовательные и другие нематериальные потребности существенно увеличивается.",
+                cardTerm: "Закон Энгеля",
+                cardDef: "Закономерность, согласно которой при росте доходов доля расходов на продукты питания в бюджете снижается.",
+                explain: "Поскольку физиологические потребности человека в еде ограничены, при росте дохода люди начинают тратить больше на услуги и досуг, а процент расходов на еду падает.",
+                hint: "Вспомните: богатый человек ест качественнее, но в процентном соотношении от своего огромного бюджета тратит на еду гораздо меньше."
+            },
+            {
+                id: 6,
+                q: "Что является факторным доходом для капитала?",
+                options: [
+                    "Процент",
+                    "Рента",
+                    "Прибыль",
+                    "Заработная плата"
+                ],
+                correctIndex: 0, // "Процент"
+                guideTitle: "К заданию 6. Факторы производства и факторные доходы",
+                guideText: "Каждый ресурс, участвующий в производстве (фактор производства), приносит своему владельцу определённый вид дохода: <ul><li><b>Труд</b> приносит <i>заработную плату</i>;</li><li><b>Земля</b> приносит <i>ренту</i>;</li><li><b>Капитал</b> (здания, оборудование, финансовые средства) приносит <i>процент</i>;</li><li><b>Предпринимательские способности</b> приносят <i>прибыль</i>.</li></ul>",
+                cardTerm: "Факторный доход: Процент",
+                cardDef: "Доход, получаемый владельцем капитала (инвестиций, оборудования) за предоставление его в пользование.",
+                explain: "Плата за использование капитала всегда принимает форму процента.",
+                hint: "Рента относится к земле, зарплата — к труду, прибыль — к предпринимательству. Что остается капиталу?"
+            },
+            {
+                id: 7,
+                q: "Что из перечисленного является главной проблемой экономики?",
+                options: [
+                    "Ограниченность ресурсов и рост потребностей",
+                    "Высокая инфляция",
+                    "Безработица",
+                    "Дефицит государственного бюджета"
+                ],
+                correctIndex: 0, // "Ограниченность ресурсов и рост потребностей"
+                guideTitle: "К заданию 7. Главная экономическая проблема",
+                guideText: "Экономическая наука зародилась для решения фундаментального противоречия: <b>ресурсы планеты и общества ограничены</b>, тогда как <b>потребности человека безграничны</b> и постоянно растут. Все остальные проблемы (безработица, инфляция, бюджетный дефицит) являются частными последствиями функционирования различных систем, но не первопричиной.",
+                cardTerm: "Главная проблема экономики",
+                cardDef: "Противоречие между безграничным ростом человеческих потребностей и ограниченностью доступных ресурсов.",
+                explain: "Это базовое противоречие, которое изучает и пытается разрешить любая экономическая наука.",
+                hint: "Подумайте о самом глобальном вопросе существования ресурсов на Земле."
+            },
+            {
+                id: 8,
+                q: "Что изучает микроэкономика?",
+                options: [
+                    "Экономику в целом",
+                    "Государственный бюджет",
+                    "Мировую торговлю",
+                    "Поведение отдельных потребителей и фирм"
+                ],
+                correctIndex: 3, // "Поведение отдельных потребителей и фирм"
+                guideTitle: "К заданию 8. Микроэкономика vs Макроэкономика",
+                guideText: "Экономическая теория делится на два основных раздела: <ol><li><b>Микроэкономика</b> — изучает поведение отдельных экономических агентов (фирм, потребителей, домохозяйств) на конкретных рынках.</li><li><b>Макроэкономика</b> — исследует экономику как единое целое (проблемы инфляции, безработицы, ВВП, государственного бюджета, международной торговли).</li></ol>",
+                cardTerm: "Микроэкономика",
+                cardDef: "Раздел экономики, изучающий поведение отдельных участников (потребителей, домохозяйств, конкретных фирм).",
+                explain: "Микроэкономика фокусируется на локальных субъектах хозяйствования, тогда как макроэкономика изучает агрегированные показатели всей страны.",
+                hint: "Приставка 'микро' означает малый масштаб — поведение конкретного покупателя или продавца."
+            },
+            {
+                id: 9,
+                q: "Что происходит при дефляции?",
+                options: [
+                    "Снижается общий уровень цен",
+                    "Растёт безработица",
+                    "Растут цены, падает покупательная способность",
+                    "Увеличивается денежная масса"
+                ],
+                correctIndex: 0, // "Снижается общий уровень цен"
+                guideTitle: "К заданию 9. Дефляция и её проявления",
+                guideText: "<b>Дефляция</b> — это процесс, прямо противоположный инфляции. Он характеризуется <b>устойчивым снижением общего уровня цен</b> на товары и услуги. При дефляции покупательная способность денег увеличивается (на ту же сумму можно купить больше), однако затяжная дефляция опасна, так как стимулирует снижение производства и потребительский застой.",
+                cardTerm: "Дефляция",
+                cardDef: "Процесс общего и устойчивого снижения уровня цен на товары и услуги в экономике.",
+                explain: "Дефляция — это падение цен, в отличие от инфляции, которая цены повышает.",
+                hint: "Инфляция — это рост цен, а противоположный ей термин..."
+            },
+            {
+                id: 10,
+                q: "Что из перечисленного относится к объектам собственности?",
+                options: [
+                    "Государство",
+                    "Предприниматель",
+                    "Трудовой коллектив",
+                    "Ценные бумаги"
+                ],
+                correctIndex: 3, // "Ценные бумаги"
+                guideTitle: "К заданию 10. Субъекты и объекты собственности",
+                guideText: "В правовых и экономических отношениях собственности различают: <ul><li><b>Субъекты собственности</b> — те, кто владеет имуществом (граждане, предприниматели, трудовые коллективы, государство);</li><li><b>Объекты собственности</b> — то имущество, на которое распространяется право владения (земля, недвижимость, оборудование, деньги, <i>ценные бумаги</i>, патенты).</li></ul>",
+                cardTerm: "Объект собственности",
+                cardDef: "Имущество, вещи, ценности или права, принадлежащие субъекту на правах собственности.",
+                explain: "Ценные бумаги выступают объектом, которым владеют субъекты (государство, предприниматель или коллектив).",
+                hint: "Различайте 'КТО владеет' (субъект) и 'ЧЕМ владеют' (объект)."
+            },
+            {
+                id: 11,
+                q: "Что из перечисленного не включается в расчёт ВНП?",
+                options: [
+                    "Услуги иностранной фирмы на территории страны",
+                    "Продукция отечественного завода внутри страны",
+                    "Услуги российского врача за рубежом",
+                    "Товар, произведённый национальной фирмой за границей"
+                ],
+                correctIndex: 0, // "Услуги иностранной фирмы на территории страны"
+                guideTitle: "К заданию 11. Различие между ВВП и ВНП",
+                guideText: "Главный критерий разделения: <ul><li><b>ВВП (Валовой внутренний продукт)</b> — по <i>территориальному признаку</i> (все товары внутри страны независимо от гражданства производителей);</li><li><b>ВНП (Валовой национальный продукт)</b> — по <i>национальному признаку</i> (все товары, созданные гражданами/фирмами этой страны, независимо от того, где они находятся).</li></ul>Поэтому продукция иностранной фирмы на территории России включается в ВВП России, но НЕ включается в её ВНП.",
+                cardTerm: "ВНП",
+                cardDef: "Рыночная стоимость конечных товаров и услуг, созданных гражданами страны как внутри неё, так и за границей.",
+                explain: "Иностранная фирма не принадлежит гражданам этой страны, следовательно, её результаты не входят в национальный продукт (ВНП).",
+                hint: "ВНП измеряет доходы только граждан/фирм данной страны. Иностранцы сюда не входят."
+            },
+            {
+                id: 12,
+                q: "Инфляция издержек вызвана:",
+                options: [
+                    "Снижением налогов",
+                    "Увеличением производительности труда",
+                    "Ростом затрат на производство",
+                    "Ростом денежных доходов населения"
+                ],
+                correctIndex: 2, // "Ростом затрат на производство"
+                guideTitle: "К заданию 12. Инфляция издержек",
+                guideText: "Инфляция по причинам возникновения бывает двух основных видов: <ol><li><b>Инфляция спроса</b> (избыток денег у населения, дефицит товаров);</li><li><b>Инфляция издержек (предложения)</b> — вызывается <i>ростом цен на ресурсы и сырьё</i>, увеличением налогов на бизнес или ростом зарплат. Производители вынуждены поднимать цены на конечные товары, чтобы покрыть возросшие затраты на производство.</li></ol>",
+                cardTerm: "Инфляция издержек",
+                cardDef: "Вид инфляции, возникающий вследствие роста цен на производственные ресурсы и сырье.",
+                explain: "Инфляция издержек напрямую связана с увеличением себестоимости выпуска продукции.",
+                hint: "Слово 'издержки' в экономике означает затраты на производство."
+            }
+        ];
+
+        // Инициализация страниц
+        function showPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // РЕНДЕР ТЕОРИИ (Справочник строго по заданиям)
+        function initGuide() {
+            const container = document.getElementById('guide-list');
+            container.innerHTML = '';
+            
+            database.forEach(item => {
+                const block = document.createElement('div');
+                block.className = 'bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow transition';
+                block.innerHTML = `
+                    <h3 class="text-xl font-bold text-indigo-900 mb-3">${item.guideTitle}</h3>
+                    <div class="text-slate-700 leading-relaxed text-sm space-y-2">
+                        ${item.guideText}
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center">
+                        <span class="text-xs text-slate-400">Связано с вопросом №${item.id}</span>
+                        <button onclick="goToQuestion(${item.id})" class="text-xs font-bold text-indigo-600 hover:underline">Проверить знания →</button>
+                    </div>
+                `;
+                container.appendChild(block);
+            });
+        }
+
+        function goToQuestion(id) {
+            showPage('quiz');
+            const targetEl = document.getElementById(`question-card-${id}`);
+            if (targetEl) {
+                setTimeout(() => {
+                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    targetEl.classList.add('ring-2', 'ring-indigo-500');
+                    setTimeout(() => targetEl.classList.remove('ring-2', 'ring-indigo-500'), 2000);
+                }, 100);
+            }
+        }
+
+        // РЕНДЕР КАРТОЧЕК
+        function initCards() {
+            const container = document.getElementById('cards-grid');
+            container.innerHTML = '';
+
+            // Разнообразные сочные фоны для карточек
+            const colors = [
+                { f: 'bg-gradient-to-br from-indigo-500 to-indigo-600', b: 'bg-gradient-to-br from-indigo-600 to-indigo-700' },
+                { f: 'bg-gradient-to-br from-sky-500 to-sky-600', b: 'bg-gradient-to-br from-sky-600 to-sky-700' },
+                { f: 'bg-gradient-to-br from-emerald-500 to-emerald-600', b: 'bg-gradient-to-br from-emerald-600 to-emerald-700' },
+                { f: 'bg-gradient-to-br from-amber-500 to-amber-600', b: 'bg-gradient-to-br from-amber-600 to-amber-700' },
+                { f: 'bg-gradient-to-br from-rose-500 to-rose-600', b: 'bg-gradient-to-br from-rose-600 to-rose-700' },
+                { f: 'bg-gradient-to-br from-purple-500 to-purple-600', b: 'bg-gradient-to-br from-purple-600 to-purple-700' }
+            ];
+
+            database.forEach((item, index) => {
+                const color = colors[index % colors.length];
+                const cardWrapper = document.createElement('div');
+                cardWrapper.className = 'perspective-1000 w-full h-56 cursor-pointer';
+                cardWrapper.innerHTML = `
+                    <div class="card-inner relative w-full h-full text-white shadow-md rounded-2xl" onclick="this.classList.toggle('flipped')">
+                        <!-- Лицевая сторона -->
+                        <div class="card-front absolute w-full h-full ${color.f} rounded-2xl p-6 flex flex-col justify-between">
+                            <span class="text-xs uppercase tracking-wider opacity-75 font-bold">Карточка ${index + 1}</span>
+                            <div class="text-lg font-black text-center my-auto">${item.cardTerm}</div>
+                            <span class="text-xs text-right opacity-50">Нажми, чтобы перевернуть</span>
+                        </div>
+                        <!-- Обратная сторона -->
+                        <div class="card-back absolute w-full h-full ${color.b} rounded-2xl p-6 flex flex-col justify-between">
+                            <span class="text-xs uppercase tracking-wider opacity-75 font-bold">Определение</span>
+                            <div class="text-sm font-semibold leading-relaxed text-center my-auto">${item.cardDef}</div>
+                            <span class="text-xs text-right opacity-50">Нажми, чтобы перевернуть</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(cardWrapper);
+            });
+        }
+
+        // РЕНДЕР ТЕСТА
+        let solvedQuestions = {}; // хранит состояние решенных вопросов
+        let currentQuizData = [];
+
+        function renderQuiz(shuffle = true) {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+            
+            // Клонируем базу данных, чтобы не менять оригинал при перемешивании
+            currentQuizData = JSON.parse(JSON.stringify(database));
+            if (shuffle) {
+                currentQuizData.sort(() => Math.random() - 0.5);
+            }
+
+            solvedQuestions = {};
+            updateScore();
+            document.getElementById('quiz-footer').classList.add('hidden');
+
+            currentQuizData.forEach((item, index) => {
+                solvedQuestions[item.id] = false;
+
+                const qCard = document.createElement('div');
+                qCard.id = `question-card-${item.id}`;
+                qCard.className = 'bg-white p-6 rounded-2xl border border-slate-200 shadow-sm transition-all duration-300';
+                
+                // Создаем разметку для вариантов ответов
+                let optionsHtml = '';
+                item.options.forEach((opt, oIdx) => {
+                    optionsHtml += `
+                        <button 
+                            id="btn-${item.id}-${oIdx}"
+                            onclick="checkAnswer(${item.id}, ${oIdx}, ${item.correctIndex}, '${item.explain.replace(/'/g, "\\'")}', '${item.hint.replace(/'/g, "\\'")}')"
+                            class="option-btn block w-full text-left px-4 py-3 my-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-900 transition font-medium text-sm"
+                        >
+                            ${opt}
+                        </button>
+                    `;
+                });
+
+                qCard.innerHTML = `
+                    <div class="flex items-start gap-3 mb-4">
+                        <span class="flex items-center justify-center bg-indigo-100 text-indigo-800 font-bold text-xs w-6 h-6 rounded-full shrink-0 mt-0.5">${index + 1}</span>
+                        <h4 class="font-bold text-slate-900 text-base">${item.q}</h4>
+                    </div>
+                    <div class="space-y-1">
+                        ${optionsHtml}
+                    </div>
+                    <!-- Блок обратной связи -->
+                    <div id="feedback-${item.id}" class="mt-4 p-4 rounded-xl text-sm hidden"></div>
+                `;
+                container.appendChild(qCard);
+            });
+        }
+
+        function checkAnswer(questionId, chosenIndex, correctIndex, explanation, hint) {
+            const feedbackEl = document.getElementById(`feedback-${questionId}`);
+            const chosenBtn = document.getElementById(`btn-${questionId}-${chosenIndex}`);
+            
+            if (chosenIndex === correctIndex) {
+                // Если ответ верный
+                solvedQuestions[questionId] = true;
+                
+                // Делаем верную кнопку зеленой
+                chosenBtn.className = "option-btn block w-full text-left px-4 py-3 my-2 rounded-xl border border-emerald-500 bg-emerald-50 text-emerald-900 font-bold text-sm transition";
+                
+                // Отключаем остальные кнопки в этом вопросе
+                const parent = chosenBtn.parentElement;
+                const buttons = parent.querySelectorAll('.option-btn');
+                buttons.forEach(btn => {
+                    if (btn !== chosenBtn) {
+                        btn.disabled = true;
+                        btn.classList.add('opacity-50');
+                    }
+                });
+
+                // Выводим красивое объяснение
+                feedbackEl.className = "mt-4 p-4 rounded-xl text-sm bg-emerald-100 border border-emerald-200 text-emerald-900 block";
+                feedbackEl.innerHTML = `<strong>✨ Верно!</strong> ${explanation}`;
+                
+                updateScore();
+            } else {
+                // Если ответ неверный
+                chosenBtn.className = "option-btn block w-full text-left px-4 py-3 my-2 rounded-xl border border-rose-500 bg-rose-50 text-rose-900 font-medium text-sm transition";
+                chosenBtn.disabled = true; // Отключаем именно эту ошибочную кнопку
+
+                // Выводим подсказку, почему выбор неверен, и предлагаем подумать еще
+                feedbackEl.className = "mt-4 p-4 rounded-xl text-sm bg-rose-100 border border-rose-200 text-rose-900 block";
+                feedbackEl.innerHTML = `<strong>❌ Ошибка.</strong> ${hint} Попробуйте выбрать другой вариант!`;
+            }
+        }
+
+        function updateScore() {
+            const solvedCount = Object.values(solvedQuestions).filter(Boolean).length;
+            const total = database.length;
+            document.getElementById('score-counter').innerText = `Пройдено: ${solvedCount} / ${total}`;
+
+            if (solvedCount === total) {
+                document.getElementById('quiz-footer').classList.remove('hidden');
+                document.getElementById('quiz-footer').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function restartQuiz() {
+            renderQuiz(true);
+        }
+
+        // Запуск при загрузке страницы
+        window.onload = function() {
+            initGuide();
+            initCards();
+            renderQuiz(true);
+        };
+    </script>
+</body>
+</html>
